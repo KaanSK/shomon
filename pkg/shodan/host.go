@@ -1,12 +1,38 @@
 // This package is derived from https://github.com/ns3777k/go-shodan
 
+//The MIT License (MIT)
+//
+//Copyright (c) 2015-present Safonov Nikita
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+
 package shodan
 
 import (
 	"encoding/json"
+	"errors"
+	"io/ioutil"
 	"math/big"
 	"net"
+	"net/http"
 	"strconv"
+	"strings"
 )
 
 // Facet is a property to get summary information on.
@@ -40,6 +66,23 @@ func (v *IntString) UnmarshalJSON(b []byte) error {
 // String method just returns string out of IntString.
 func (v *IntString) String() string {
 	return string(*v)
+}
+
+// GetErrorFromResponse used to getting errors from streaming api endpoint
+func GetErrorFromResponse(r *http.Response) error {
+	errorResponse := new(struct {
+		Error string `json:"error"`
+	})
+	message, err := ioutil.ReadAll(r.Body)
+	if err == nil {
+		if err := json.Unmarshal(message, errorResponse); err == nil {
+			return errors.New(errorResponse.Error)
+		}
+
+		return errors.New(strings.TrimSpace(string(message)))
+	}
+
+	return err
 }
 
 // HostServicesOptions is options for querying services.

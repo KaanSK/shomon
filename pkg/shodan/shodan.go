@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	conf "github.com/KaanSK/shomon/pkg/conf"
@@ -45,15 +44,9 @@ func handleAlertStream(ch chan *HostData) {
 		return
 	}
 	if resp.StatusCode != http.StatusOK {
-		bodyBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			logger.Error(err)
-		}
-		if bodyBytes != nil {
-			logger.Error(bodyBytes)
-		}
+		err = GetErrorFromResponse(resp)
 		resp.Body.Close()
-		return
+		logger.Fatal(err)
 	}
 
 	reader := bufio.NewReader(resp.Body)
