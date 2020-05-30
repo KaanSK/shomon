@@ -11,6 +11,9 @@ ShoMon is a shodan alert feeder for theHive written in GoLang. Takes advantage o
 * Default logging level is DEBUG. Can be changed via editing logwrapper
 
 # Setup & Compile Instructions
+## Get latest compiled binary from releases
+1. Check [Releases] section.
+
 ## Compile from source code
 1. Make sure that you have a working Golang workspace.
 2. `go build .`
@@ -25,3 +28,5 @@ ShoMon is a shodan alert feeder for theHive written in GoLang. Takes advantage o
 * `go-shodan` : https://github.com/ns3777k/go-shodan
 * logwrapper package : https://www.datadoghq.com/blog/go-logging/
 * Dockerfile : https://www.cloudreach.com/en/resources/blog/cts-build-golang-dockerfiles/
+
+[Releases]: https://github.com/KaanSK/shomon/releases/latest
