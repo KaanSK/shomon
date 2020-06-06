@@ -9,10 +9,7 @@ import (
 	"time"
 
 	conf "github.com/KaanSK/shomon/pkg/conf"
-	lw "github.com/KaanSK/shomon/pkg/logwrapper"
 )
-
-var logger = lw.NewLogger()
 
 // HiveAlert : Alert structure
 type HiveAlert struct {

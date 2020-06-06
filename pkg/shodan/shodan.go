@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	conf "github.com/KaanSK/shomon/pkg/conf"
 	lw "github.com/KaanSK/shomon/pkg/logwrapper"
@@ -18,7 +19,6 @@ import (
 
 var (
 	errShomonServiceStop = errors.New("listener service stopped")
-	logger               = lw.NewLogger()
 )
 
 func parseResponse(destination interface{}, body io.Reader) error {
@@ -40,13 +40,15 @@ func handleAlertStream(ch chan *HostData) {
 	}()
 	resp, err := http.Get("https://stream.shodan.io/shodan/alert?key=" + conf.Config.ShodanKey)
 	if err != nil {
-		logger.Error(err)
-		return
+		lw.Logger.Error(err)
 	}
 	if resp.StatusCode != http.StatusOK {
 		err = GetErrorFromResponse(resp)
 		resp.Body.Close()
-		logger.Fatal(err)
+		lw.Logger.Error(err)
+		if err.Error() == "No alerts specified" || err.Error() == "Invalid API key" {
+			os.Exit(1)
+		}
 	}
 
 	reader := bufio.NewReader(resp.Body)
@@ -65,7 +67,7 @@ func handleAlertStream(ch chan *HostData) {
 
 		if err := parseResponse(banner, bytes.NewBuffer(chunk)); err != nil {
 			resp.Body.Close()
-			logger.Error(err)
+			lw.Logger.Error(err)
 			break
 		}
 
@@ -78,7 +80,7 @@ func ListenAlerts() error {
 	ch := make(chan *HostData)
 	go handleAlertStream(ch)
 
-	logger.Info("listening process initiated")
+	lw.Logger.Info("listening process initiated")
 
 	for {
 		banner, ok := <-ch
@@ -99,13 +101,13 @@ func ListenAlerts() error {
 		hash := md5.Sum([]byte(foundService))
 		hiveAlert.SourceRef = hex.EncodeToString(hash[:])
 
-		logger.Info("triggered alarm for: " + hiveAlert.SourceRef)
+		lw.Logger.Info("triggered alarm for: " + hiveAlert.SourceRef)
 
 		err := thehive.CreateAlert(hiveAlert)
 		if err != nil {
 			return err
 		}
-		logger.Info("created alert for " + hiveAlert.SourceRef)
+		lw.Logger.Info("created alert for " + hiveAlert.SourceRef)
 	}
 	return errShomonServiceStop
 }
