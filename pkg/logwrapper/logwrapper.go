@@ -1,7 +1,6 @@
 package logwrapper
 
 import (
-	"io"
 	"os"
 
 	"github.com/sirupsen/logrus"
@@ -12,22 +11,15 @@ type StandardLogger struct {
 	*logrus.Logger
 }
 
+// Logger : Globally shared logging instance
+var Logger = NewLogger()
+
 // NewLogger initializes the standard logger
 func NewLogger() *StandardLogger {
 	var baseLogger = logrus.New()
 	var standardLogger = &StandardLogger{baseLogger}
+	standardLogger.SetLevel(logrus.InfoLevel)
 
-	standardLogger.Formatter = &logrus.JSONFormatter{}
-	standardLogger.SetReportCaller(true)
-	standardLogger.SetLevel(logrus.DebugLevel)
-
-	file, err := os.OpenFile("shodanmonitor.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-	if err != nil {
-		standardLogger.Fatal(err)
-		return nil
-	}
-
-	mw := io.MultiWriter(os.Stdout, file)
-	standardLogger.SetOutput(mw)
+	standardLogger.SetOutput(os.Stdout)
 	return standardLogger
 }
