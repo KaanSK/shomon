@@ -1,0 +1,13 @@
+HIVE_URL: "http://localhost:9000"
+HIVE_KEY:
+HIVE_CASE_TEMPLATE:
+HIVE_TYPE: "SHODAN"
+HIVE_TAGS:
+  - 'test:test2="test3"'
+  - 'test4:test5="test6"'
+SHODAN_KEY:
+INCLUDE_BANNER: true
+LOG_LEVEL: DEBUG
+WEBHOOK: true
+WEBHOOK_ENDPOINT: "/"
+WEBHOOK_PORT: 8080

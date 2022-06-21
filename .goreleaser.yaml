@@ -1,0 +1,84 @@
+builds:
+- env:
+  - CGO_ENABLED=0
+  goos:
+  - linux
+  - darwin
+  goarch:
+  - amd64
+  - arm64
+  # ensures mod timestamp to be the commit timestamp
+  mod_timestamp: '{{ .CommitTimestamp }}'
+  binary: shomon
+  flags:
+    # trims path
+    - -trimpath
+  ldflags:
+    # use commit date instead of current date as main.date
+    # only needed if you actually use those things in your main package, otherwise can be ignored.
+    - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }}
+
+# proxies from the go mod proxy before building
+# https://goreleaser.com/customization/gomod
+#gomod:
+#  proxy: true
+
+# config the checksum filename
+# https://goreleaser.com/customization/checksum
+checksum:
+  name_template: 'checksums.txt'
+
+# create a source tarball
+# https://goreleaser.com/customization/source/
+source:
+  enabled: true
+
+# creates SBOMs of all archives and the source tarball using syft
+# https://goreleaser.com/customization/sbom
+sboms:
+  - artifacts: archive
+  - id: source # Two different sbom configurations need two different IDs
+    artifacts: source
+
+# signs the checksum file
+# all files (including the sboms) are included in the checksum, so we don't need to sign each one if we don't want to
+# https://goreleaser.com/customization/sign
+signs:
+- cmd: cosign
+  env:
+  - COSIGN_EXPERIMENTAL=1
+  certificate: '${artifact}.pem'
+  args:
+    - sign-blob
+    - '--output-certificate=${certificate}'
+    - '--output-signature=${signature}'
+    - '${artifact}'
+  artifacts: checksum
+  output: true
+
+
+dockers:
+- image_templates:
+  - "docker.io/kaansk/shomon:{{ .Tag }}"
+  - "docker.io/kaansk/shomon:latest"
+  - "ghcr.io/kaansk/shomon:{{ .Tag }}"
+  - "ghcr.io/kaansk/shomon:latest"
+  dockerfile: .goreleaser.Dockerfile
+  build_flag_templates:
+  - "--pull"
+  - "--label=org.opencontainers.image.created={{.Date}}"
+  - "--label=org.opencontainers.image.name={{.ProjectName}}"
+  - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+  - "--label=org.opencontainers.image.version={{.Version}}"
+  - "--label=org.opencontainers.image.source={{.GitURL}}"
+
+
+docker_signs:
+  - cmd: cosign
+    env:
+    - COSIGN_EXPERIMENTAL=1
+    artifacts: images
+    output: true
+    args:
+    - 'sign'
+    - '${artifact}'
