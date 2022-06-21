@@ -1,0 +1,81 @@
+version: "3"
+services:
+  shomon:
+    build: .
+    container_name: shomon
+    ports:
+      - "8080:8080"
+    environment:
+      - "SHOMON_HIVE_URL=http://thehive:9000"
+      - "SHOMON_HIVE_KEY="
+      - "SHOMON_HIVE_TYPE=SHODAN"
+      - 'SHOMON_HIVE_TAGS=test:test2="test3"'
+      - "SHOMON_SHODAN_KEY="
+      - "SHOMON_INCLUDE_BANNER=true"
+      - "SHOMON_LOG_LEVEL=DEBUG"
+      - "SHOMON_WEBHOOK=true"
+      - "SHOMON_WEBHOOK_ENDPOINT=/banner"
+      - "SHOMON_WEBHOOK_PORT=8080"
+  
+  thehive:
+    image: strangebee/thehive:latest
+    container_name: thehive
+    depends_on:
+      - cassandra
+      - elasticsearch
+      - minio
+    mem_limit: 1000m
+    ports:
+      - "9000:9000"
+    environment:
+      - JVM_OPTS="-Xms1024M -Xmx1024M"
+    command:
+      - --secret
+      - "mySecretForTheHive"
+      - "--cql-hostnames"
+      - "cassandra"
+      - "--cql-username"
+      - "cassandra"
+      - "--cql-password"
+      - "cassandra"
+      - "--index-backend"
+      - "elasticsearch"
+      - "--es-hostnames"
+      - "elasticsearch"
+      - "--s3-endpoint"
+      - "http://minio:9000"
+      - "--s3-access-key"
+      - "minioadmin"
+      - "--s3-secret-key"
+      - "minioadmin"
+      - "--s3-use-path-access-style"
+      - "--no-config-cortex"
+
+  cassandra:
+    container_name: cassandra
+    image: bitnami/cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_CLUSTER_NAME=TheHive
+
+  elasticsearch:
+    container_name: elastic
+    mem_limit: 1000m
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+    ports:
+      - "9200:9200"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+
+  minio:
+    container_name: minio
+    mem_limit: 1000m
+    image: quay.io/minio/minio
+    command: ["minio", "server", "/data", "--console-address", ":9001"]
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    ports:
+      - "9001:9001"
