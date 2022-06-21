@@ -37,6 +37,11 @@ ShoMon is a Shodan alert feeder for TheHive written in GoLang. With version 2.0,
 2. `go build .`
     * `go build -ldflags="-s -w" .` could be used to customize compilation and produce smaller binary.
 
+## Using Public Container Registries
+1. Thanks to new CI/CD integration, latest versions of built images are pushed to ghcr, DockerHub and can be utilized via:
+    * `docker pull ghcr.io/kaansk/shomon`
+    * `docker pull kaansk/shomon`
+
 ## Using [Dockerfile](Dockerfile)
 1. Edit [config file](conf.yaml) or provide environment variables to commands bellow
 2. `docker build -t shomon .`
