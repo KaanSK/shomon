@@ -11,12 +11,18 @@ ShoMon is a Shodan alert feeder for TheHive written in GoLang. With version 2.0,
     * Webhook listener opens a restful API endpoint for Shodan to send alerts. This means you need to make this endpoint available to public net
     * Stream listener connects to Shodan and fetches/parses the alert stream
 * Utilizes [shadowscatcher/shodan](https://github.com/shadowscatcher/shodan) (fantastic work) for Shodan interaction.
-* Alert specifics can be adjusted via conf.yaml or environment variables
 * Console logs are in JSON format and can be ingested by any other further log management tools
 * CI/CD via Github Actions ensures that a proper Release with changelogs, artifacts, images on ghcr and dockerhub will be provided
 * Provides a working [docker-compose file](docker-compose.yml) file for TheHive, dependencies
 * Super fast and Super mini in size
 * Complete code refactoring in v2.0 resulted in more modular, maintainable code
+* Via conf file or environment variables alert specifics including tags, type, alert-template can be dynamically adjusted. See [config file](conf.yaml).
+* Full banner can be included in Alert with direct link to Shodan Finding.
+
+    ![Alert example](images/alert.png)
+* IP is added to observables
+
+    ![Observable example](images/observable.png)
 
 # Usage
 * Parameters should be provided via ```conf.yaml``` or environment variables. Please see [config file](conf.yaml) and [docker-compose file](docker-compose.yml)
