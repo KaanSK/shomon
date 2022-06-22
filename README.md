@@ -1,6 +1,14 @@
 <p align="center">
   <img src="images/logo.png" />
 </p>
+
+<p align="center">
+  <img src="https://goreportcard.com/badge/github.com/KaanSK/shomon" />
+  <img src="https://img.shields.io/github/downloads/kaansk/shomon/total?color=%233ABE25&label=Release%20Downloads" />
+  <img src="https://img.shields.io/docker/pulls/kaansk/shomon?color=%233ABE25&label=DockerHub%20Pulls" />
+</p>
+
+
 <p align="center">
 ShoMon is a Shodan alert feeder for TheHive written in GoLang. With version 2.0, it is more powerful than ever!
 </p>
